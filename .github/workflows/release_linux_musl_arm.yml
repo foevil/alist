@@ -24,16 +24,6 @@ jobs:
         with:
           fetch-depth: 0
  
-      - name: 释放磁盘空间
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
-
       - name: Build
         run: |
           bash build.sh release linux_musl_arm
