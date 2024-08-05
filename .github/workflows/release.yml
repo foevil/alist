@@ -33,11 +33,11 @@ jobs:
       - name: 释放磁盘空间
         uses: jlumbroso/free-disk-space@main
         with:
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
           swap-storage: true
+
+      - name: Check Space
+        run: |
+          df -h
 
       - name: Install dependencies
         run: |
