@@ -1,0 +1,44 @@
+name: release_linux_musl_arm
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  release_linux_musl_arm:
+    strategy:
+      matrix:
+        platform: [ ubuntu-latest ]
+        go-version: [ '1.21' ]
+    name: Release
+    runs-on: ${{ matrix.platform }}
+    steps:
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+ 
+      - name: 释放磁盘空间
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+
+      - name: Build
+        run: |
+          bash build.sh release linux_musl_arm
+
+      - name: Upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/compress/*
