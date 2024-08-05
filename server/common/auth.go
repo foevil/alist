@@ -43,7 +43,7 @@ func ParseToken(tokenString string) (*UserClaims, error) {
 		return SecretKey, nil
 	})
 	if IsTokenInvalidated(tokenString) {
-		return nil, errors.New("令牌无效")
+		return nil, errors.New("令牌已失效")
 	}
 	if err != nil {
 		if ve, ok := err.(*jwt.ValidationError); ok {
