@@ -44,7 +44,7 @@ func AddURL(ctx context.Context, args *AddURLArgs) (tache.TaskWithInfo, error) {
 	// check storage
 	storage, dstDirActualPath, err := op.GetStorageAndActualPath(args.DstDirPath)
 	if err != nil {
-		return nil, errors.WithMessage(err, "获取存储失败")
+		return nil, errors.WithMessage(err, "failed get storage")
 	}
 	// check is it could upload
 	if storage.Config().NoUpload {
@@ -66,16 +66,24 @@ func AddURL(ctx context.Context, args *AddURLArgs) (tache.TaskWithInfo, error) {
 	uid := uuid.NewString()
 	tempDir := filepath.Join(conf.Conf.TempDir, args.Tool, uid)
 	deletePolicy := args.DeletePolicy
-	if args.Tool == "pikpak" {
+
+	switch args.Tool {
+	case "115 Cloud":
+		tempDir = args.DstDirPath
+		// 防止将下载好的文件删除
+		deletePolicy = DeleteNever
+	case "pikpak":
 		tempDir = args.DstDirPath
 		// 防止将下载好的文件删除
 		deletePolicy = DeleteNever
 	}
+	
 	t := &DownloadTask{
 		Url:          args.URL,
 		DstDirPath:   args.DstDirPath,
 		TempDir:      tempDir,
 		DeletePolicy: deletePolicy,
+		Toolname:     args.Tool,
 		tool:         tool,
 	}
 	DownloadTaskManager.Add(t)
