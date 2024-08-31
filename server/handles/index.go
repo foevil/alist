@@ -19,7 +19,7 @@ type UpdateIndexReq struct {
 }
 
 func BuildIndex(c *gin.Context) {
-	if search.Running.Load() {
+	if search.Running() {
 		common.ErrorStrResp(c, "请先停止索引运行", 400)
 		return
 	}
@@ -45,7 +45,7 @@ func UpdateIndex(c *gin.Context) {
 		common.ErrorResp(c, err, 400)
 		return
 	}
-	if search.Running.Load() {
+	if search.Running() {
 		common.ErrorStrResp(c, "请先停止索引运行", 400)
 		return
 	}
@@ -72,16 +72,20 @@ func UpdateIndex(c *gin.Context) {
 }
 
 func StopIndex(c *gin.Context) {
-	if !search.Running.Load() {
+	quit := search.Quit.Load()
+	if quit == nil {
 		common.ErrorStrResp(c, "当前索引未运行", 400)
 		return
 	}
-	search.Quit <- struct{}{}
-	common.SuccessStrResp(c, "索引停止成功")
+	select {
+	case *quit <- struct{}{}:
+	default:
+	}
+	common.SuccessResp(c, "索引停止成功")
 }
 
 func ClearIndex(c *gin.Context) {
-	if search.Running.Load() {
+	if search.Running() {
 		common.ErrorStrResp(c, "请先停止索引运行", 400)
 		return
 	}
